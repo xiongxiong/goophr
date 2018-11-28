@@ -70,6 +70,7 @@ var dGetAllCh chan dAllMsg
 
 var pProcessCh chan payload
 
+// StartFeederSystem ...
 func StartFeederSystem() {
 	done = make(chan bool)
 
@@ -80,9 +81,9 @@ func StartFeederSystem() {
 	pProcessCh = make(chan payload, 8)
 
 	dStoreCh = make(chan document, 8)
-	dProcessCh = make(chan payload, 8)
+	dProcessCh = make(chan document, 8)
 	lGetCh = make(chan lMsg)
-	lStoreCh = make(chan lMata, 8)
+	lStoreCh = make(chan lMeta, 8)
 
 	for i := 0; i < 4; i++ {
 		go indexAdder(iAddCh, done)
@@ -91,7 +92,7 @@ func StartFeederSystem() {
 	}
 
 	go docStore(dStoreCh, dGetCh, dGetAllCh, done)
-	go lineStore(lStoreCh, lGetch, done)
+	go lineStore(lStoreCh, lGetCh, done)
 }
 
 func indexAdder(ch chan token, done chan bool) {
@@ -155,7 +156,7 @@ func indexProcessor(ch chan document, lStoreCh chan lMeta, iAddCh chan token, do
 				index := 0
 				words := strings.Fields(line)
 				for _, word := range words {
-					if tok, valid := common.SimplifyToken(work); valid {
+					if tok, valid := common.SimplifyToken(word); valid {
 						iAddCh <- token{
 							Token:  tok,
 							LIndex: lin,
@@ -188,7 +189,7 @@ func docStore(add chan document, get chan dMsg, dGetAllCh chan dAllMsg, done cha
 		case m := <-get:
 			m.Ch <- store[m.DocID]
 		case ch := <-dGetAllCh:
-			docs := []documents{}
+			docs := []document{}
 			for _, doc := range store {
 				docs = append(docs, doc)
 			}
@@ -243,7 +244,7 @@ func getFile(URL string) (string, error) {
 		return "", errMsg
 	}
 	if res.StatusCode > 200 {
-		errMsg := fmt.Sprintf("Unable to retrieve URL: %s.\nStatus Code: %d")
+		errMsg := fmt.Errorf("Unable to retrieve URL: %s.\nStatus Code: %d", URL, res.StatusCode)
 
 		return "", errMsg
 	}
@@ -252,7 +253,7 @@ func getFile(URL string) (string, error) {
 	defer res.Body.Close()
 
 	if err != nil {
-		errMsg := fmt.Errorf("Error while reading response: URL: %s.\nError: %s", URL, res)
+		errMsg := fmt.Errorf("Error while reading response: URL: %s.\nError: %v", URL, res)
 
 		return "", errMsg
 	}
