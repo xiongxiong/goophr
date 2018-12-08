@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"goophr/concierge/api"
 	"goophr/concierge/common"
@@ -10,10 +12,12 @@ import (
 func main() {
 	common.Log("Adding API handlers...")
 	http.HandleFunc("/api/feeder", api.FeedHandler)
+	http.HandleFunc("/api/query", api.QueryHandler)
 
 	common.Log("Starting feeder...")
 	api.StartFeederSystem()
 
-	common.Log("Starting Goophr Concierge server on port :8080...")
-	http.ListenAndServe(":8080", nil)
+	port := fmt.Sprintf(":%s", os.Getenv("API_PORT"))
+	common.Log("Starting Goophr Concierge server on port :" + port + "...")
+	http.ListenAndServe(port, nil)
 }

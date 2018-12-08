@@ -107,6 +107,7 @@ func getSearchResults(sts []string) []docResult {
 	return results
 }
 
+// QueryHandler ...
 func QueryHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)

@@ -1,19 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"goophr/librarian/api"
 	"goophr/librarian/common"
 	"net/http"
+	"os"
 )
 
 func main() {
 	common.Log("Adding API handlers...")
-	http.HandleFunc("api/index", api.IndexHandler)
-	http.HandleFunc("api/query", api.QueryHandler)
+	http.HandleFunc("/api/index", api.IndexHandler)
+	http.HandleFunc("/api/query", api.QueryHandler)
 
 	common.Log("Starting index...")
 	api.StartIndexSystem()
 
-	common.Log("Starting Goophr Librarian server on port :9090...")
-	http.ListenAndServe(":9090", nil)
+	port := fmt.Sprintf(":%s", os.Getenv("API_PORT"))
+	common.Log("Starting Goophr Librarian server on port :" + port + "...")
+	http.ListenAndServe(port, nil)
 }

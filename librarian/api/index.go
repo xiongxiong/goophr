@@ -74,6 +74,7 @@ var pProcessCh chan tPayload
 
 var tcGet chan tcCallback
 
+// StartIndexSystem ...
 func StartIndexSystem() {
 	pProcessCh = make(chan tPayload, 100)
 	tcGet = make(chan tcCallback, 20)
@@ -117,6 +118,7 @@ func tIndexer(ch chan tPayload, callback chan tcCallback) {
 	}
 }
 
+// IndexHandler ...
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
